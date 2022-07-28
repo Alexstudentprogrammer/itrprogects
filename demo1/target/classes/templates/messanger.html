@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th = "http://www.thymeLeaf.org">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Send Message</title>
+</head>
+
+<body>
+<card-header><h5 align="center">Welcome!</h5></card-header>
+<div class="container">
+    <div class="container">
+
+
+        <input type="hidden" name="senderId" th:attr="value=${id}" id="senderId">
+        <input type="hidden" name="senderName" th:attr="value=${name}" id="senderName">
+    <input type="search" list="data" class="form-control" id="rec" placeholder="Recipient" name="recipientName" required><br>
+    <datalist id="data">
+        <div style="display:none" th:each = "user:${users}">
+            <option th:text = "${user.name}"></option>
+        </div>
+    </datalist>
+    <input type="text" class="form-control"  placeholder="Theme" name="theme" id="theme"><br>
+    <textarea  class="form-control" name="body" id="body">Body</textarea>
+    <button class="btn btn-primary" onclick="send()">Send</button>
+
+
+    <table class="table" id="messagesTable">
+        <thead>
+        <tr>
+            <td>Date</td>
+            <td align="center">Theme</td>
+            <td align="center">Sender</td>
+        </tr>
+        </thead>
+     <tr th:each ="msg : ${msgs}" th:attr = "id=${msg.messageId}" >
+         <td colspan="3" style="padding:0px">
+
+         <table class="table table-bordered">
+              <tr>
+                      <td style="width:33%" th:text = "${msg.date}"></td>
+                      <td align="left" style="width:33%" ><button style="background:none; border:none;" th:text="${msg.theme}" th:onclick = "'javascript:moveIt(\''  + ${msg.messageId} +  '\');'"></button></td>
+                      <td style="width:33%" th:text = "${msg.senderName}"></td>
+             </tr>
+         </table>
+             <br>
+             <textarea readonly="true" style="display:none; width: 100%; height:match-parent; border:none" th:text = "${msg.body}" th:attr = "class=${msg.messageId}" >
+
+             </textarea>
+         </td>
+     </tr>
+    </table>
+</div>
+</div>
+<script lang="javascript" charset="utf-8">
+
+    //taken from stackoverflow user: yglodt, answered on: Nov 23, 2013 at 11:06
+    var ws = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/chat");
+
+    ws.onmessage = function(e){
+    addMessage(e.data);
+
+    }
+    function addMessage(e){
+    var table = document.getElementById("messagesTable");
+    var messageData = JSON.parse(e);
+
+    if(messageData.recipientName === document.getElementById("senderName").value){
+
+       //Pushing new message
+
+        var tr = document.createElement('tr');//root
+        tr.id = messageData.id;
+        var td1 = document.createElement('td');//next root
+        td1.colSpan = 3;
+
+        var table1 = document.createElement('table');//inner table
+        table1.class = "table table-bordered";
+        table1.style.width="100%";
+
+        var tr1 = document.createElement('tr');
+
+         var tdin1 = document.createElement('td');
+         tdin1.style.width = "33%";
+         tdin1.innerHTML = messageData.date;
+
+         var tdin2 = document.createElement('td');
+         tdin2.style.width = "33%";
+
+         var but = document.createElement('button');
+         but.onclick = function(){moveIt(messageData.id);}
+         but.style.border = "none";
+         but.style.background = "none";
+         but.innerHTML = messageData.theme;
+
+         tdin2.appendChild(but);
+
+         var tdin3 = document.createElement('td');
+         tdin3.style.width = "33%";
+         tdin3.innerHTML = messageData.senderName;
+
+         tr1.appendChild(tdin1);
+         tr1.appendChild(tdin2);
+         tr1.appendChild(tdin3);
+
+
+        table1.appendChild(tr1);
+        td1.appendChild(table1);
+
+        var text = document.createElement('textarea');
+        text.className = ""+messageData.id;
+        text.style.display = "none";
+        text.value = messageData.body;
+        text.style.width = "100%";
+        text.style.border = "none";
+        var b = document.createElement('br');
+
+
+        td1.appendChild(b);
+        td1.appendChild(text);
+        tr.appendChild(td1);
+
+        table.appendChild(tr);
+
+    }
+
+    }
+    function send(){
+    var recipient = document.getElementById("rec").value;
+    var t = document.getElementById("theme").value;
+    var sender = document.getElementById("senderId").value;
+    var b = document.getElementById("body").value;
+    var name = document.getElementById("senderName").value;
+
+    var day = new Date();
+    var d = String(day.getDate()).padStart(2, '0');
+    var m = String(day.getMonth() + 1).padStart(2, '0');
+    var yy = day.getFullYear();
+    var today = m + '-' + d + '-' + yy;
+
+
+    let msg = {
+    recipientName: recipient,
+    senderId: sender,
+    theme: t,
+    body: b,
+    senderName: name,
+    date: today,
+    id:0
+    }
+    ws.send(JSON.stringify(msg));
+    }
+
+
+
+    function moveIt(id){
+    var temp = id;
+    id = "#"+temp;
+    var textClass = "."+temp;
+
+    if($(textClass).is(":hidden")){
+
+    $(id).animate({height: 200, width:1000},1500);
+    $(textClass).css("display", "inline");
+    console.log("hidden");
+    }else{
+     console.log("show");
+     $(textClass).css("display", "none");
+     $(id).animate({height: -200, width:1000},1500);
+   }
+ }
+
+
+
+</script>
+</body>
+</html>
