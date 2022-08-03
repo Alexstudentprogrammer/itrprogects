@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.js"></script>
+<script src="https://yunisdev.github.io/table2csv/table2csv.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="card-header">
+    <h3 align="center">Welcome</h3>
+</div>
+
+<div class="container">
+<table class="table" id="data_table">
+    <tr>
+        <td><select class="form-control" lang="en" onchange="reload()" id="language">
+            <option>USA</option>
+            <option>Poland</option>
+            <option>Russia</option>
+        </select>
+
+        </td>
+    </tr>
+
+    <tr>
+        <td><input type="text" placeholder="Number of errors" onchange="regen()" class="form-control" lang="en" id="erren">
+            <input style="display:none" onchange="regen()" type="text" placeholder="Количество ошибок" class="form-control" lang="ru" id="errru">
+            <input style="display:none" type="text" onchange="regen()" placeholder="liczba błędów" class="form-control" lang="pl" id="errpl">
+</td>
+    </tr>
+
+    <tr>
+        <td><input type="text" placeholder="Enter seed" onchange="regen()" class="form-control" lang="en" id="seeden">
+            <input style="display:none" type="text" onchange="regen()" placeholder="Укажите seed" class="form-control" lang="ru" id="seedru">
+            <input style="display:none" type="text" onchange="regen()" placeholder="Wchodzić seed" class="form-control" lang="pl" id="seedpl">
+        </td>
+    </tr>
+    <tr>
+        <td><input type="button" value="submit" onclick="getData()" lang="en">
+            <button  onclick="table2csv(this,1)" data-table="table" lang="en">Download CSV</button>
+
+            <input type="button" value="Получить данные" onclick="getData()" lang="ru" style="display:none">
+            <button  onclick="table2csv(this,1)" data-table="table" lang="ru" style="display:none">Скачать CSV</button>
+
+            <input type="button" value="Zatwierdź" onclick="getData()" lang="pl" style="display:none">
+            <button  onclick="table2csv(this,1)" data-table="table" style="display:none" lang="pl">Ściągnij CSV</button>
+        </td>
+    </tr>
+
+</table>
+<table class="table table-striped" id="table">
+    <thead>
+    <tr>
+        <td>Number</td>
+        <td>Full Name</td>
+        <td>Phone</td>
+        <td>Id</td>
+        <td>Address</td>
+        <td>Email</td>
+    </tr>
+    </thead>
+
+
+
+</table>
+</div>
+
+
+<script language="JavaScript" charset="utf-8">
+// taken from https://myrusakov.ru/make-infinite-scroll.html?ysclid=l6dpw7jvpf551534417
+window.addEventListener("scroll", function(){
+
+                var block = document.getElementById('table');
+                var counter = 1;
+
+                var contentHeight = block.offsetHeight;
+                var yOffset       = window.pageYOffset;
+                var window_height = window.innerHeight;
+                var y             = yOffset + window_height;
+
+
+                if(y >= contentHeight)
+                {
+
+                   getData();
+                }
+            });
+
+String.prototype.replaceIn = function(idx, rep) {
+   return this.substring(0, idx) + rep + this.substring(idx + rep.length);
+}
+
+engpol = 'abcdefghijklmnopqrstuvwxyz'.split('');
+rus = 'абвгдеёжзийклмнопрстуфхцчшщьъыэюя'.split('');
+var iter = 1;//page number
+var numberOfRecs = 1;//total number of records
+
+var language = "en";
+var curalpha = engpol;
+var size = 26;
+var table = document.getElementById("table");
+
+function getData(){// main function
+
+var idseed = "seeden";
+var iderr = "erren"
+
+if(language === "en"){
+idseed = "seeden";
+faker.locale = "en";
+curalpha = engpol;
+iderr = "erren";
+size = 26;
+
+}else if(language === "pl"){
+idseed = "seedpl";
+faker.locale = "pl";
+iderr = "errpl";
+curalpha = engpol;
+size = 26;
+
+}else{
+idseed = "seedru";
+faker.locale = "ru";
+iderr = "errru";
+curalpha = rus;
+size = 33;
+}
+
+
+var s = document.getElementById(idseed).value;
+var er = document.getElementById(iderr).value;
+
+var x = Number(s);
+var z = Number(er);
+
+faker.seed(x*iter);
+
+var arg = new Math.seedrandom(x*iter);
+
+
+var wholeNumber = Math.floor(z);
+var fraction = z % 1;
+
+
+for(let i = 0; i < 20; i++){
+var [fullName, address, email, phone, id] = [faker.name.findName(), faker.address.city() +" "+ faker.address.streetAddress()+" ", faker.internet.email(),faker.phone.phoneNumber(),faker.random.uuid()];
+var arr = [fullName, address, email, phone, id];
+for(let j = 0; j < wholeNumber; j++){
+
+       let index = Math.floor(arg()*5)
+       let word = arr[index];
+       let oper = Math.floor(arg()*3);
+       if(oper == 0){
+       let rep = curalpha[Math.floor(arg()*size)];
+       let pos = Math.floor(arg()*word.length);
+       arr[index] = arr[index].replaceIn(pos, rep);
+
+
+       }else if(oper == 1){
+       let rep = curalpha[Math.floor(arg()*size)];
+       let pos = Math.floor(arg()*word.length);
+       arr[index] = arr[index].replaceIn(pos, "");
+
+       }else{
+       let pos = Math.floor(arg()*word.length);
+
+       if(pos < word.length-1){
+       let c1 = arr[index].charAt(pos);
+       let c2 = arr[index].charAt(pos + 1);
+       arr[index] = arr[index].replaceIn(pos, c2);
+       arr[index] = arr[index].replaceIn(pos + 1, c1);
+       }else{
+      let c1 = arr[index].charAt(pos);
+      let c2 = arr[index].charAt(pos - 1);
+       arr[index] = arr[index].replaceIn(pos, c2);
+       arr[index] = arr[index].replaceIn(pos - 1, c1);
+       }
+    }
+}
+// if errors 10.5 - here we processing one error with probability 50%
+if(fraction > 0 && arg() < fraction){
+ let index = Math.floor(arg()*5)
+       let word = arr[index];
+       let oper = Math.floor(arg()*3);
+       if(oper == 0){
+       let rep = curalpha[Math.floor(arg()*size)];
+       let pos = Math.floor(arg()*word.length);
+       arr[index] = arr[index].replaceIn(pos, rep);
+
+
+       }else if(oper == 1){
+       let rep = curalpha[Math.floor(arg()*size)];
+       let pos = Math.floor(arg()*word.length);
+       arr[index] = arr[index].replaceIn(pos, "");
+
+       }else{
+       let pos = Math.floor(arg()*word.length);
+
+       if(pos < word.length-1){
+       let c1 = arr[index].charAt(pos);
+       let c2 = arr[index].charAt(pos + 1);
+       arr[index] = arr[index].replaceIn(pos, c2);
+       arr[index] = arr[index].replaceIn(pos + 1, c1);
+       }else{
+      let c1 = arr[index].charAt(pos);
+      let c2 = arr[index].charAt(pos - 1);
+       arr[index] = arr[index].replaceIn(pos, c2);
+       arr[index] = arr[index].replaceIn(pos - 1, c1);
+       }
+    }
+}
+
+table.innerHTML +=  "<tr><td>"+numberOfRecs+"</td><td>"+ arr[0] +"</td><td>"+ arr[3] +"</td><td>"+ arr[4] +"</td><td>"+ arr[1] +"</td><td>"+ arr[2] +"</td></tr>";
+numberOfRecs++;
+}
+iter++;
+}
+
+function reload(){
+$('input[lang]').hide();
+$('button[lang]').hide();
+var elem = document.getElementById("language");
+var l = elem.options[elem.selectedIndex].text;
+
+if(l === "USA"){
+language = "en";
+$('input[lang="en"]').show();
+$('button[lang="en"]').show();
+console.log("en");
+}else if(l === "Poland"){
+
+language = "pl";
+$('input[lang="pl"]').show();
+$('button[lang="pl"]').show();
+console.log("pl");
+
+}else{
+language = "ru";
+$('input[lang="ru"]').show();
+$('button[lang="ru"]').show();
+console.log("ru");
+}
+regen();
+}
+
+function regen(){
+iter = 1;
+numberOfRecs = 1;
+table.innerHTML = "<thead><tr><td>Number</td><td>Full Name</td><td>Phone</td><td>Id</td><td>Address</td><td>Email</td></tr></thead>"
+getData();
+}
+
+
+</script>
+</body>
+</html>
