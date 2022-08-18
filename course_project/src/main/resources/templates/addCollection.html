@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeLeaf.org">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="card-header">
+    <div class="row">
+        <div class="col-md-3"><h3 align="left">New Collection</h3></div>
+    </div>
+</div>
+
+<div class="container">
+    <form class="form-group" method="post" enctype="multipart/form-data" action="http://localhost:8080/mycollections/add">
+        <label for="name">Collection name</label>
+        <input type="text" placeholder="Enter collection name" class="form-control" id="name" name="name">
+        <label for="Theme">Chose Theme</label>
+        <select class="form-control" id="Theme" name="theme">
+            <option>Books</option>
+            <option>Cars</option>
+            <option>Planes</option>
+            <option>Wines</option>
+        </select>
+        <label for="desc">Enter description</label>
+        <textarea class="form-control" id="desc" name="desc"></textarea>
+
+        <label for="file">Upload image</label>
+<input class="form-control" type="file" id="file" name="image">
+        <input type="submit" value="Create" >
+    </form>
+</div>
+<script language="JavaScript">
+
+
+</script>
+</body>
+</html>

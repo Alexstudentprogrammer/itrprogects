@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th = "http://www.thymeLeaf.org">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<head>
+    <meta charset="UTF-8">
+    <title>Detailed View</title>
+</head>
+<body>
+<div class="card-header">
+    <div class="row">
+        <div class="col-md-3"><h3 align="left">My Collections</h3></div>
+        <div class="col-md-5"><input type="search" class="form-control" placeholder="search"></div>
+        <div class="col-md-3" align="left"><button class="btn btn-primary" style="margin-right:10px">Search</button> <button class="btn btn-primary" id="add">Add Collection</button></div>
+    </div>
+</div>
+<div class="container">
+    <table class="table">
+        <thead>
+        <tr>
+            <td>Name</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="col : ${cols}">
+            <td th:text = "${col.name}"></td>
+            <td align="right"><button class="btn btn-primary" style="margin:5px" th:onclick="'javascript:editCollection(\''  + ${col.id} +  '\');'">Edit</button><button class="btn btn-danger">Remove</button></td>
+        </tr>
+        </tbody>
+
+    </table>
+</div>
+<script language="JavaScript">
+
+ function editCollection(id){
+location.href = "http://localhost:8080/mycollections/edit/"+id;
+ }
+
+document.getElementById("add").onclick = function(){
+location.href = "http://localhost:8080/mycollections/add";
+}
+
+</script>
+</body>
+</html>

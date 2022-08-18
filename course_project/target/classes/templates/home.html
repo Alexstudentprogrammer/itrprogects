@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<html xmlns:th = "http://www.thymeLeaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Collections</title>
+</head>
+
+<body>
+<div class="card-header">
+    <div class="row">
+        <div class="col-md-3"><h3 align="left">Top Collections</h3></div>
+        <div class="col-md-5"><input type="search" class="form-control" placeholder="search"></div>
+        <div class="col-md-3" align="left"><button class="btn btn-primary" style="margin-right:10px">Search</button><button class="btn btn-primary" id="my_col" onclick="myCol()">My Collections</button></div>
+</div>
+</div>
+<div class="row">
+    <div class="col-md-3" style="overflow:hidden">
+        <div class="card-header">
+            <input type="search" class="form-control" placeholder="tag search" id="tag_search" oninput="performSearch()">
+        </div>
+        <div  style="display: flex; flex-wrap:wrap;flex-direction:row;border: 1px solid grey; border-radius:15px;" id="tags">
+
+
+<!--            answered Oct 22, 2020 at 6:28 by Enamul Haque (Stack Overflow)-->
+            <button th:each = "tag : ${tags}"  th:text = ${tag.name} style="border-radius:15px; margin:4px; order:1; background-color:white"  th:attr = "id=${tag.name}" th:data-parameter2="${tag.name}" th:onclick = "select(this.getAttribute('data-parameter2'))"></button>
+
+
+        </div>
+    </div>
+    <div class="col-md-8">
+<div class="container">
+
+    <table class="table" style="display:none" id="items"></table> <!---do not touch-->
+
+    <table class="table" id="collections">
+        <tr th:each  ="col : ${cols}">
+
+            <td>
+             <form method="get" action="/collections/">
+                 <p th:text = "${col.name}"></p>
+                  <input type="hidden"  th:attr = "value=${col.id}" name ="id">
+                  <input type="submit">
+
+             </form>
+            </td>
+        </tr>
+    </table>
+
+    </div>
+
+</div>
+    </div>
+<script language="JavaScript">
+    var cols = document.getElementById("collections");
+    var items = document.getElementById("items");
+    var data = document.getElementById("tags").children;
+    const tags = new Set();
+
+
+    function performSearch(){
+     var search = document.getElementById("tag_search").value;
+     for(var i = 0; i < data.length; i++){
+     if(search === "" || data[i].id.includes(search)){
+      data[i].style.display = 'inline';
+     }else{
+      data[i].style.display = 'none';
+    }}}
+
+    function select(id){
+     var selected = document.getElementById(id);
+     if(selected.style.background === "white"){
+         selected.style.background = "blue";
+         selected.style.order = 0;
+         tags.add(selected.id);
+     }else{
+       selected.style.background = "white";
+       selected.style.order = 1;
+       tags.delete(selected.id);
+     }
+     update();
+     }
+
+   function update(){
+   if(tags.size == 0){
+    items.style.display = 'none';
+    cols.style.display = '';
+    return;
+   }
+    items.innerHTML = "";
+    items.style.display = '';
+    cols.style.display = 'none';
+    var param = [...tags].join(',');
+    $.ajax({url: "http://localhost:8080/tag/search/"+param, success: function(result){
+        result.forEach(addToTable);
+   }
+});
+
+}
+
+function addToTable(message){
+    let tr = document.createElement("tr");
+    let td = document.createElement("td");
+    td.innerHTML = message.name;
+    tr.appendChild(td);
+    items.appendChild(tr);
+}
+
+function openCol(id){
+alert("click"+id);
+var form = document.getElementById(id);
+form.submit();
+}
+
+document.getElementById("my_col").onclick = function(){
+location.href = "http://localhost:8080/mycollections/";
+}
+
+
+
+</script>
+</body>
+</html>
