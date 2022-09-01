@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<html xmlns:th = "http://www.thymeLeaf.org">
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="card-header">
+    <button class="btn btn-warning" id="lock" onclick="lock()">Lock</button>
+    <button class="btn btn-info" id="unlock" onclick="unlock()">
+        <!--This icon was taken from: https://icons.getbootstrap.com/icons/unlock/-->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock" viewBox="0 0 16 16">
+            <path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5V3a3 3 0 0 1 6 0v4a.5.5 0 0 1-1 0V3a2 2 0 0 0-2-2zM3 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H3z"/>
+        </svg></button>
+    <button class="btn btn-danger" id="delete" onclick="remove()">
+        <!--This icon was taken from: https://icons.getbootstrap.com/icons/trash3/-->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+        </svg>
+    </button>
+    <button class="btn btn-primary" onclick="promote()" id="promote">Give Admin rights</button>
+    <button class="btn btn-warning" onclick="downgrade()" id="downgrade">Remove Admin rights</button>
+
+
+
+</div>
+<div class="container">
+
+    <table class="table" align="center">
+        <tr>
+            <td style="padding: 10px">Select all<br>
+                <input type="checkbox" id="all" onchange="selectAll()"> </td>
+            <td align="center" style="padding: 10px">id</td>
+            <td align="center" style="padding: 10px" id="name"><p>First name</p></td>
+            <td align="center" style="padding: 10px" id="status"><p>Locked</p></td>
+            <td align="center" style="padding: 10px" id="username"><p>Username</p></td>
+            <td align="center" style="padding: 10px" id="role"><p>Role</p></td>
+        <tr th:each = "user : ${users}">
+            <td><input type="checkbox" name = "check" th:attr="id=${user.userId}"></td>
+            <td align="center"><p th:text = "${user.userId}"></p></td>
+            <td align="center"><p th:text = "${user.fName}"></p></td>
+            <td align="center"><p th:text = "${user.locked}"></p></td>
+            <td align="center"><p th:text = "${user.username}"></p></td>
+            <td align="center"><p th:text = "${user.role}"></p></td>
+        </tr>
+    </table>
+</div>
+<!--for lock-->
+<form id="userLock" action="/manage/api/lock" method="post">
+    <input type="hidden" id="inputLock" name="ids">
+</form>
+<!--for unlock-->
+<form id="userUnlock" action="/manage/api/unlock" method="post">
+    <input type="hidden" id="inputUnlock" name="ids">
+</form>
+<!--for delete-->
+<form id="userRemove" action="/manage/api/delete" method="post">
+    <input type="hidden" id="inputRemove" name="ids">
+</form>
+
+<form id="userPromote" action="/manage/api/promote" method="post">
+    <input type="hidden" id="inputPromote" name="ids">
+</form>
+<form id="userDowngrade" action="/manage/api/downgrade" method="post">
+    <input type="hidden" id="inputDowngrade" name="ids">
+</form>
+
+
+<script lang="javascript" charset="utf-8" th:inline="javascript">
+
+
+
+
+changeSkin([[${skin}]],"default");
+
+
+function changeSkin(skin, purpose){
+if(skin === "dark"){
+defSkin = "dark"
+$("body").css("background-color","black")
+let ps = document.getElementsByTagName("p");
+for(let i = 0; i < ps.length; i++){
+ps[i].style.color = "white";
+}
+
+}else{
+
+
+}
+}
+
+
+if([[${lang}]] === "ru"){
+$("#name").html("Имя");
+$("#status").html("Заблокирован");
+$("#username").html("Имя пользователя");
+$("#role").html("Роль");
+$("#lock").html("Заблокировать");
+$("#promote").html("Дать права админа");
+$("#downgrade").html("Забрать права админа");
+}
+
+function remove(){//delete user(s)
+    var input = document.getElementById("inputRemove");
+    var form = document.getElementById("userRemove");
+    input.value = getCheckboxes();
+    if(input.value !== "")
+    form.submit();
+
+
+}
+function lock(){//lock user(s)
+    var input = document.getElementById("inputLock");
+    var form = document.getElementById("userLock");
+    input.value = getCheckboxes();
+    if(input.value !== "")
+    form.submit();
+}
+function unlock(){//unlock user(s)
+    var input = document.getElementById("inputUnlock");
+    var form = document.getElementById("userUnlock");
+    input.value = getCheckboxes();
+    if(input.value !== "")
+    form.submit();
+
+}
+
+function promote(){//unlock user(s)
+    var input = document.getElementById("inputPromote");
+    var form = document.getElementById("userPromote");
+    input.value = getCheckboxes();
+    if(input.value !== "")
+    form.submit();
+
+}
+function downgrade(){//unlock user(s)
+    var input = document.getElementById("inputDowngrade");
+    var form = document.getElementById("userDowngrade");
+    input.value = getCheckboxes();
+    if(input.value !== "")
+    form.submit();
+
+}
+
+function getCheckboxes(){
+    var list = document.getElementsByName("check");
+    var result =[];
+    list.forEach((val, idx, arr)=>{
+       if(val.checked){
+           result.push(val.id);
+    }
+    });
+    var toReturn ="";
+    for(let i = 0; i < result.length - 1; i++){
+        toReturn += result[i];
+        toReturn += ",";
+    }
+    if(result.length != 0)
+    toReturn += result[result.length-1];
+    return  toReturn;
+}
+var selected = 0;
+function selectAll(){
+    var list = document.getElementsByName("check");
+    if(selected == 0){
+     list.forEach((val, idx,arr)=>{
+        val.checked = true;
+     });
+
+     selected = 1;
+    }else{
+        list.forEach((val, idx,arr)=>{
+            val.checked = false;
+    });
+
+        selected = 0;
+
+    }
+
+}
+
+
+</script>
+</body>
+</html>

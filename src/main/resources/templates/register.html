@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div class="card-header"><h5 align="center">Registration</h5></div>
+<div class="container" >
+  <form action="http://localhost:8080/signup" method="post" class="form-group">
+
+    <table class="table">
+      <tr>
+        <td>Enter your Name</td>
+        <td><input type="text" id="firstName" name="firstName" required></td>
+      </tr>
+      <tr>
+        <td>Enter your Last Name</td>
+        <td><input type="text" id="lastName" name="lastName" required></td>
+      </tr>
+      <tr>
+        <td>Enter your email</td>
+        <td><input type="text" id="email" name="username" required></td>
+      </tr>
+      <tr>
+        <td>Enter your password</td>
+        <td><input type="password" id="password" name="password" required></td>
+      </tr>
+
+      <tr>
+
+        <td>Submit</td>
+        <td><input type="submit" value="Submit" class="btn btn-success"></td>
+      </tr>
+
+
+    </table>
+  </form>
+</div>
+</body>
+</html>
