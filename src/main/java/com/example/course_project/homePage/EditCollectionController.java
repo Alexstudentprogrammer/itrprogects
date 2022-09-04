@@ -269,9 +269,9 @@ public class EditCollectionController {
     private Cloudinary getCloudinary(){
         Cloudinary cloudinary = null;
         Map config = new HashMap();
-        config.put("cloud_name", "dvzxp9rth");
-        config.put("api_key", "876696229284272");
-        config.put("api_secret", "sj2Hp7ihUI-jrYCVSa0JhX0kNDw");
+        config.put("cloud_name", "");
+        config.put("api_key", ");
+        config.put("api_secret", "");
         cloudinary = new Cloudinary(config);
         return cloudinary;
     }
