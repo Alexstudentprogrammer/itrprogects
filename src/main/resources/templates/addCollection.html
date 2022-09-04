@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeLeaf.org">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="card-header">
+    <div class="row">
+        <div class="col-md-3"><h3 align="left">New Collection</h3></div>
+    </div>
+</div>
+
+<div class="container">
+    <form class="form-group" method="post" enctype="multipart/form-data" action="https://itrcourseproject.herokuapp.com/mycollections/add" id="form">
+        <label for="name" id="cname"><p>Collection name</p></label>
+        <input type="text" placeholder="Enter collection name" class="form-control" id="name" name="name">
+        <label for="Theme"><p>Chose Theme</p></label>
+        <select class="form-control" id="Theme" name="theme">
+            <option>Books</option>
+            <option>Cars</option>
+            <option>Planes</option>
+            <option>Wines</option>
+        </select>
+
+        <div class="form-group">
+            <label for="desc">Content:</label>
+            <textarea type="text" rows="4" id="desc" name="desc" placeholder="Content" class="form-control"
+                       autocomplete="off"></textarea>
+        </div>
+
+        <label for="file" id="img">Upload image</label>
+        <input class="form-control" type="file" id="file" name="image">
+        <button class="btn btn-success" onclick="prepare(event)" id="sub">Create</button>
+
+        <input type="hidden" id="add_fields" name="data">
+        <table class="table" id="add_info">
+            <tr>
+                <td><p id="vis">Visible</p></td>
+                <td><p id="nameOf">Name of the Option</p></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="string"></td>
+                <td><input type="text" class="form-control" placeholder="Text" id="s1"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="string"></td>
+                <td><input type="text" class="form-control" placeholder="Text" id="s2"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="string"></td>
+                <td><input type="text" class="form-control" placeholder="Text" id="s3"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="number"></td>
+                <td><input type="text" class="form-control" placeholder="Number" id="n1"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="number"></td>
+                <td><input type="text" class="form-control" placeholder="Number" id="n2"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="number"></td>
+                <td><input type="text" class="form-control" placeholder="Number" id="n3"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="date"></td>
+                <td><input type="text" class="form-control" placeholder="Date" id="d1"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="date"></td>
+                <td><input type="text" class="form-control" placeholder="Date" id="d2"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="date"></td>
+                <td><input type="text" class="form-control" placeholder="Date" id="d3"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="largetext"></td>
+                <td><input type="text" class="form-control" placeholder="Large Text" id="l"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="largetext"></td>
+                <td><input type="text" class="form-control" placeholder="Large Text" id="l2"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="largetext"></td>
+                <td><input type="text" class="form-control" placeholder="Large Text" id="l3"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="yes_no"></td>
+                <td><input type="text" class="form-control" placeholder="Yes/No" id="y1"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="yes_no"></td>
+                <td><input type="text" class="form-control" placeholder="Yes/No" id="y2"></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" class="form-check" value="yes_no"></td>
+                <td><input type="text" class="form-control" placeholder="Yes/No" id="y3"></td>
+            </tr>
+        </table>
+    </form>
+    <table class="table" id="add_field">
+        <tr>
+            <td><input type="radio" name="type" value="yes_no"><p>Yes/No</p></td>
+            <td><input type="radio" name="type" value="largetext"><p>Large Text</p></td>
+            <td><input type="radio" name="type" value="string"><p>Text</p></td>
+            <td><input type="radio" name="type" value="number"><p>Number</p></td>
+            <td><input type="radio" name="type" value="date"><p>Date</p></td>
+            <td><input type="radio" name="type" value="select"><p>New dropdown</p></td>
+            <td><button class="btn btn-primary" onclick="addToTable()"><p>Add new Field</p></button></td>
+        </tr>
+    </table>
+</div>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script language="JavaScript" th:inline="javascript">
+var simplemde = new SimpleMDE({element: document.getElementById("desc")});
+var defSkin = [[${skin}]];
+var lang = [[${lang}]];
+changeSkin(defSkin,"default");
+
+function changeSkin(skin, purpose){
+if(skin === "dark"){
+defSkin = "dark"
+$("body").css("background-color","black")
+let ps = document.getElementsByTagName("p");
+for(let i = 0; i < ps.length; i++){
+ps[i].style.color = "white";
+}}}
+if(lang === "ru"){
+$("#y1").attr("placeholder","Да/Нет")
+$("#y2").attr("placeholder","Да/Нет")
+$("#y3").attr("placeholder","Да/Нет")
+$("#d1").attr("placeholder","Дата")
+$("#d2").attr("placeholder","Дата")
+$("#d3").attr("placeholder","Дата")
+$("#s1").attr("placeholder","Текст")
+$("#s2").attr("placeholder","Текст")
+$("#s3").attr("placeholder","Текст")
+$("#n1").attr("placeholder","Число")
+$("#n2").attr("placeholder","Число")
+$("#n3").attr("placeholder","Число")
+$("#l").attr("placeholder","Большой текст")
+$("#l2").attr("placeholder","Большой текст")
+$("#l3").attr("placeholder","Большой текст")
+$("#add").html("Создать");
+$("#cname").html("Имя коллекции");
+$("#name").html("Описание");
+$("#img").html("Загрузите картинку");
+$("#vis").html("Видимость");
+$("#nameOf").html("Наименование");
+}
+function prepare(e){
+event.preventDefault();
+var json = {};
+
+var table = document.getElementById("add_info");
+var inputs = table.getElementsByTagName("input");
+var divWithOptions = document.getElementsByClassName("options");
+
+//i - counter to iterate over table
+//j - counter to append everything in js object
+//k - counter to keep track of divs that containing options for select components
+
+for(let i = 0, j = 0, k = 0; i < inputs.length-1; i+=2, j++){
+let subJson ={};
+
+if(inputs[i].value === "select"){
+
+subJson["visible"] = inputs[i].checked;
+let optionsOfSelect = collectOptions(divWithOptions[k]);
+subJson["options"] = optionsOfSelect;
+subJson["type"] = "select";
+subJson["name"] = inputs[i+1].value;
+json[j] = subJson;
+i++;//since in select row we have 3 inputs
+k++;
+
+}else{
+subJson["visible"] = inputs[i].checked;
+subJson[inputs[i].value] = inputs[i+1].value;
+subJson["type"] = inputs[i].value;
+json[j] = subJson;
+}
+}
+document.getElementById("add_fields").value = JSON.stringify(json)
+document.getElementById("form").submit();
+}
+
+function addToTable(){
+
+var tr = document.createElement("tr");
+var td1 = document.createElement("td");
+var td2 = document.createElement("td");
+
+var field = document.createElement("input");
+field.type = "text";
+var check = document.createElement("input");
+check.type = "checkbox";
+var selected = document.querySelector('input[name="type"]:checked').value;
+
+switch(selected){
+case "string":
+check.value = "string"
+field.placeholder = "Text"
+break;
+
+case "number":
+check.value = "number"
+field.placeholder = "Number"
+break;
+
+case "date":
+check.value = "date"
+field.placeholder = "Date"
+break;
+
+case "yes_no":
+check.value = "yes_no"
+field.placeholder = "Yes/No"
+break;
+case "largetext":
+check.value = "largetext"
+field.placeholder = "Large Text"
+break;
+
+case "select":
+check.value = "select"
+field.placeholder = "Dropdown"
+break;
+
+default:
+return;
+break;
+}
+field.className="form-control"
+td1.appendChild(check);
+td2.appendChild(field);
+if(check.value === "select"){
+
+let optionInput = document.createElement("input");
+let addOptionBtn = document.createElement("button");
+addOptionBtn.innerHTML = "Add option";
+
+let optionDiv = document.createElement("div");
+optionDiv.className = "options";
+
+$(optionDiv).attr("display","flex");
+$(optionDiv).attr("flex-direction","row");
+$(optionDiv).attr("flex-wrap","wrap");
+
+addOptionBtn.onclick = function(e){
+e.preventDefault()
+    var tag = document.createElement("button");
+    tag.innerHTML = optionInput.value;
+
+
+     // answered Mar 27, 2013 at 1:09 by (Stack Overflow)
+    tag.onclick = function(e) {
+    e.preventDefault();
+    this.parentNode.removeChild(this)
+    };
+    optionDiv.appendChild(tag);
+    optionInput.value = "";
+
+}
+
+optionInput.className = "form-control"
+addOptionBtn.className = "btn btn-primary"
+td2.appendChild(optionInput);
+td2.appendChild(optionDiv);
+td2.appendChild(addOptionBtn);
+}
+tr.appendChild(td1);
+tr.appendChild(td2);
+document.getElementById("add_info").appendChild(tr);
+}
+
+function collectOptions(obj){
+let childs = obj.childNodes;
+let options = "";
+
+for(let i = 0; i < childs.length-1; i++){
+options += childs[i].innerHTML +",";
+}
+ if(childs.length != 0)
+    options+= childs[childs.length-1].innerHTML;
+
+    return options;
+}
+</script>
+</body>
+</html>

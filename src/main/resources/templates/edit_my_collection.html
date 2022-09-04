@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th = "http://www.thymeLeaf.org">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="card-header">
+    <div class="row">
+        <div class="col-md-3"><h3 align="left" th:text="${col.name}"></h3></div>
+    </div>
+</div>
+
+<div class="container">
+    <form class="form-group" method="post" enctype="multipart/form-data" action="https://itrcourseproject.herokuapp.com/mycollections/edit" id="form">
+        <p><label for="name" id="namel">Collection name</label></p>
+        <input type="text" placeholder="Enter collection name" class="form-control" id="name" name="name" th:attr="value = ${col.name}">
+        <p><label for="Theme" id="Themel">Chose Theme</label></p>
+        <select class="form-control" id="Theme" name="theme">
+            <option>Books</option>
+            <option>Cars</option>
+            <option>Planes</option>
+            <option>Wines</option>
+        </select>
+        <p><label for="desc" id="descl">Enter description</label></p>
+        <div class="form-group">
+            <label for="desc">Content:</label>
+            <textarea type="text" rows="4" id="desc" name="desc" placeholder="Content" class="form-control"
+                      autocomplete="off"></textarea>
+        </div>
+
+        <p><label for="file" id="upl">Upload image</label></p>
+        <input class="form-control" type="file" id="file" name="image">
+        <input type="checkbox" name="deleteImage">Delete Image
+        <input type="hidden" th:attr="value = ${col.id}" name="id">
+        <input type="hidden" id="add_fields" name="data">
+        <div th:switch="${lang}">
+            <input th:case="ru" type="submit" value="Обновить" onclick="prepare(event)">
+            <input th:case="en" type="submit" value="Update" onclick="prepare(event)">
+        </div>
+        <table class="table" id="add_info">
+            <tr>
+                <td><p id="vis">Visible</p></td>
+                <td><p id="nameOf">Name of the Option</p></td>
+            </tr>
+        </table>
+
+    </form>
+    <table class="table" id="add_field">
+        <tr>
+            <td><input type="radio" name="type" value="yes_no">Yes/No</td>
+            <td><input type="radio" name="type" value="largetext">Large Text</td>
+            <td><input type="radio" name="type" value="string">Text</td>
+            <td><input type="radio" name="type" value="number">Number</td>
+            <td><input type="radio" name="type" value="date">Date</td>
+            <td><input type="radio" name="type" value="select">New dropdown</td>
+            <td><button class="btn btn-primary" onclick="addToTable()">Add new Field</button></td>
+        </tr>
+    </table>
+</div>
+<div class="container">
+    <div class="card-header"><h3 align="left" id="itemh">Items</h3> <button class="btn btn-success" id="add_item" th:onclick="'javascript:addItem(\''  + ${col.id} +  '\');'">Add Item</button></div>
+  <table class="table">
+      <tr>
+
+          <td th:switch="${lang}">
+              <button th:case="en" class="btn btn-primary" onclick="sortByName()">Sort in <br> alphabetical order</button>
+              <button th:case="ru" class="btn btn-primary" onclick="sortByName()">Сортировать в <br> алфавитном порядке</button>
+
+          </td>
+
+          <td th:switch="${lang}"><input type="text" placeholder="tag filter" class="form-control" id="tag">
+              <button th:case="en" class="btn btn-primary" onclick="filterByTag()">Filter</button>
+              <button th:case="ru" class="btn btn-primary" onclick="filterByTag()">Применить фильтр</button>
+          </td>
+      </tr>
+  </table>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <td id="namei"><p>Name</p></td>
+            <td id="tagi"><p>Tags</p></td>
+            <td id="actionsi"><p>Actions</p></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${items}">
+            <td><p th:text = "${item.name}"></p></td>
+            <td><p th:each = "tag : ${item.tags}" th:text = "${tag.name}"></p></td>
+            <td>
+              <div th:switch="${lang}">
+
+                  <div th:case="ru">
+                      <button class="btn btn-primary" style="margin-right:7px" th:onclick="'javascript:editItem(\''  + ${item.itemId} +  '\');'">Редактировать</button>
+                      <button class="btn btn-danger" style="margin-right:7px"  th:onclick="'javascript:deleteItem(\''  + ${item.itemId} +  '\');'">Удалить</button>
+                  </div>
+
+                <div th:case="*">
+                <button class="btn btn-primary" style="margin-right:7px" th:onclick="'javascript:editItem(\''  + ${item.itemId} +  '\');'">Edit</button>
+                <button class="btn btn-danger" style="margin-right:7px"  th:onclick="'javascript:deleteItem(\''  + ${item.itemId} +  '\');'">Remove</button>
+                </div>
+
+              </div>
+            </td>
+        </tr>
+        </tbody>
+
+    </table>
+
+</div>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script language="JavaScript" th:inline="javascript">
+var simplemde = new SimpleMDE({element: document.getElementById("desc")});
+
+//answered Nov 21, 2020 at 12:06
+//Mahdi Bashirpour
+var pos = simplemde.codemirror.getCursor();
+simplemde.codemirror.setSelection(pos, pos);
+simplemde.codemirror.replaceSelection([[${col.information}]]);
+
+var defaultLang = [[${lang}]];
+var defSkin = [[${skin}]];
+var col_data = JSON.parse([[${col.data}]]);
+
+//setUp();
+load(col_data);
+changeSkin(defSkin,"default");
+changeLanguage(defaultLang, "default");
+
+function changeSkin(skin, purpose){
+if(skin === "dark"){
+defSkin = "dark"
+$("body").css("background-color","black")
+let ps = document.getElementsByTagName("p");
+for(let i = 0; i < ps.length; i++){
+ps[i].style.color = "white";
+}}}
+
+function setUp(){
+let check = $("#add_info :input");
+for(let i = 0,j = 0; i < check.length; i+=2,j++){
+
+let key = Object.keys(col_data[j]);
+if(col_data[j][key[0]]){
+check[i].checked = true;
+}
+check[i+1].value = col_data[j][key[1]];
+
+}
+}
+
+function changeLanguage(lang, purpose){
+if(lang === "ru"){
+$("#namel").html("Введите имя коллекци");
+$("#Themel").html("Выберите тему");
+$("#descl").html("Описяние:");
+$("#upl").html("Загрузите фото");
+$("#namei").html("Наименование");
+$("#tagi").html("Тэги");
+$("#actionsi").html("Действия");
+$("#add_item").html("Добавить айтем");
+$("#itemh").html("Айтемы");
+$("#vis").html("Видимость");
+$("#nameOf").html("Наименование");
+$("#y1").attr("placeholder","Да/Нет")
+$("#y2").attr("placeholder","Да/Нет")
+$("#y3").attr("placeholder","Да/Нет")
+$("#d1").attr("placeholder","Дата")
+$("#d2").attr("placeholder","Дата")
+$("#d3").attr("placeholder","Дата")
+$("#s1").attr("placeholder","Текст")
+$("#s2").attr("placeholder","Текст")
+$("#s3").attr("placeholder","Текст")
+$("#n1").attr("placeholder","Число")
+$("#n2").attr("placeholder","Число")
+$("#n3").attr("placeholder","Число")
+$("#l").attr("placeholder","Большой текст")
+$("#l2").attr("placeholder","Большой текст")
+$("#l3").attr("placeholder","Большой текст")
+}
+}
+ function addItem(id){
+location.href = "https://itrcourseproject.herokuapp.com/mycollections/add/item/"+id;
+ }
+
+ function editItem(id){
+location.href = "https://itrcourseproject.herokuapp.com/mycollections/edit/item/"+id;
+ }
+
+ function deleteItem(id){
+     $.ajax({url: "https://itrcourseproject.herokuapp.com/mycollections/edit/item/delete/",
+     type:"post",
+     data:{
+     id:id
+     },
+     success: function(result){
+         window.location.reload();
+   }
+});
+}
+
+function prepare(e){
+e.preventDefault();
+var json = {};
+
+var table = document.getElementById("add_info");
+var inputs = table.getElementsByTagName("input");
+var divWithOptions = document.getElementsByClassName("options");
+for(let i = 0, j = 0, k = 0; i < inputs.length-1; i+=2, j++){
+let subJson ={};
+if(inputs[i].value === "select"){
+
+subJson["visible"] = inputs[i].checked;
+let optionsOfSelect = collectOptions(divWithOptions[k]);
+subJson["options"] = optionsOfSelect;
+subJson["type"] = "select";
+subJson["name"] = inputs[i+1].value;
+json[j] = subJson;
+i++;//since in select row we have 3 inputs
+k++;
+
+}else{
+let subJson ={};
+subJson["visible"] = inputs[i].checked;
+subJson[inputs[i].value] = inputs[i+1].value;
+subJson["type"] = inputs[i].value;
+json[j] = subJson;
+}
+document.getElementById("add_fields").value = JSON.stringify(json)
+document.getElementById("form").submit();
+}
+}
+function sortByName(){
+location.href = "https://itrcourseproject.herokuapp.com/mycollections/edit/"+[[${col.id}]] +"/sort"
+}
+
+function filterByTag(){
+
+let tag = document.getElementById("tag").value;
+location.href = "https://itrcourseproject.herokuapp.com/mycollections/edit/"+[[${col.id}]] +"/"+tag;
+}
+
+
+function load(data){
+
+for(let elem in data){
+
+let tr = document.createElement("tr");
+let td1 = document.createElement("td");
+let td2 = document.createElement("td");
+
+if(data[elem]["type"] !== "select"){
+let keys = Object.keys(data[elem]);
+
+var field = document.createElement("input");
+field.type = "text";
+field.className="form-control";
+field.value = data[elem][keys[1]];
+field.placeholder = data[elem]["type"];
+var check = document.createElement("input");
+check.type = "checkbox";
+check.className = "form-check"
+check.checked = data[elem]["visible"];
+check.value = data[elem]["type"];
+
+
+td1.appendChild(check);
+td2.appendChild(field);
+tr.appendChild(td1);
+tr.appendChild(td2);
+document.getElementById("add_info").appendChild(tr);
+}else{
+let keys = Object.keys(data[elem]);
+var field = document.createElement("input");
+field.type = "text";
+field.className="form-control";
+field.value = data[elem][keys[3]];
+field.placeholder = data[elem][keys[2]];
+
+var check = document.createElement("input");
+check.type = "checkbox";
+check.className = "form-check"
+check.checked = data[elem]["visible"];
+check.value = data[elem]["type"];
+td1.appendChild(check);
+td2.appendChild(field);
+
+let optionInput = document.createElement("input");
+let addOptionBtn = document.createElement("button");
+addOptionBtn.innerHTML = "Add option";
+
+let optionDiv = document.createElement("div");
+optionDiv.className = "options";
+
+$(optionDiv).attr("display","flex");
+$(optionDiv).attr("flex-direction","row");
+$(optionDiv).attr("flex-wrap","wrap");
+
+addOptionBtn.onclick = function(e){
+e.preventDefault()
+    var tag = document.createElement("button");
+    tag.innerHTML = optionInput.value;
+
+
+     // answered Mar 27, 2013 at 1:09 by (Stack Overflow)
+    tag.onclick = function(e) {
+    e.preventDefault();
+    this.parentNode.removeChild(this)
+    };
+    optionDiv.appendChild(tag);
+    optionInput.value = "";
+
+}
+
+let heap_options = data[elem][keys[1]].split(",");
+for(let t = 0; t < heap_options.length; t++){
+var tag = document.createElement("button");
+    tag.innerHTML = heap_options[t];
+     // answered Mar 27, 2013 at 1:09 by (Stack Overflow)
+    tag.onclick = function(e) {
+    e.preventDefault();
+    this.parentNode.removeChild(this)
+    };
+    optionDiv.appendChild(tag);
+}
+optionInput.className = "form-control"
+addOptionBtn.className = "btn btn-primary"
+td2.appendChild(optionInput);
+td2.appendChild(optionDiv);
+td2.appendChild(addOptionBtn);
+tr.appendChild(td1);
+tr.appendChild(td2);
+document.getElementById("add_info").appendChild(tr);
+
+}
+}
+}
+function addToTable(){
+
+var tr = document.createElement("tr");
+var td1 = document.createElement("td");
+var td2 = document.createElement("td");
+
+var field = document.createElement("input");
+field.type = "text";
+var check = document.createElement("input");
+check.type = "checkbox";
+var selected = document.querySelector('input[name="type"]:checked').value;
+
+switch(selected){
+case "string":
+check.value = "string"
+field.placeholder = "Text"
+break;
+
+case "number":
+check.value = "number"
+field.placeholder = "Number"
+break;
+
+case "date":
+check.value = "date"
+field.placeholder = "Date"
+break;
+
+case "yes_no":
+check.value = "yes_no"
+field.placeholder = "Yes/No"
+break;
+case "largetext":
+check.value = "largetext"
+field.placeholder = "Large Text"
+break;
+
+case "select":
+check.value = "select"
+field.placeholder = "Dropdown"
+break;
+
+default:
+return;
+break;
+}
+field.className="form-control"
+td1.appendChild(check);
+td2.appendChild(field);
+if(check.value === "select"){
+
+let optionInput = document.createElement("input");
+let addOptionBtn = document.createElement("button");
+addOptionBtn.innerHTML = "Add option";
+
+let optionDiv = document.createElement("div");
+optionDiv.className = "options";
+
+$(optionDiv).attr("display","flex");
+$(optionDiv).attr("flex-direction","row");
+$(optionDiv).attr("flex-wrap","wrap");
+
+addOptionBtn.onclick = function(e){
+    e.preventDefault()
+    var tag = document.createElement("button");
+    tag.innerHTML = optionInput.value;
+
+
+     // answered Mar 27, 2013 at 1:09 by (Stack Overflow)
+    tag.onclick = function(e) {
+    e.preventDefault();
+    this.parentNode.removeChild(this)
+    };
+    optionDiv.appendChild(tag);
+    optionInput.value = "";
+
+}
+
+optionInput.className = "form-control"
+addOptionBtn.className = "btn btn-primary"
+td2.appendChild(optionInput);
+td2.appendChild(optionDiv);
+td2.appendChild(addOptionBtn);
+}
+tr.appendChild(td1);
+tr.appendChild(td2);
+document.getElementById("add_info").appendChild(tr);
+}
+
+function collectOptions(obj){
+let childs = obj.childNodes;
+let options = "";
+
+for(let i = 0; i < childs.length-1; i++){
+options += childs[i].innerHTML +",";
+}
+ if(childs.length != 0)
+    options+= childs[childs.length-1].innerHTML;
+
+    return options;
+}
+
+</script>
+</body>
+</html>
