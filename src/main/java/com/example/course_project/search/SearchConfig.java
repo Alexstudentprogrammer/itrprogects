@@ -16,8 +16,8 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 
 import java.net.UnknownHostException;
 /*
-u: r730pjydjo
-p:854xqtolwn
+u: 
+p:8
 ur:olive-906917142.us-east-1.bonsaisearch.net
 po:443
 pro:https
@@ -32,10 +32,10 @@ public class SearchConfig  extends
     public RestHighLevelClient elasticsearchClient() {
 
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("r730pjydjo","854xqtolwn"));
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("ro","8ln"));
 
         RestHighLevelClient restClient = new RestHighLevelClient(
-                RestClient.builder(new HttpHost("olive-906917142.us-east-1.bonsaisearch.net",443,"https"))
+                RestClient.builder(new HttpHost("olive-906.us-east-1.bonsaisearch.net",443,"https"))
                         .setHttpClientConfigCallback(httpAsyncClientBuilder ->
                                 httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
                                         .setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())));
