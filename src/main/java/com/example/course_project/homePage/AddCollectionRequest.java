@@ -15,6 +15,6 @@ public class AddCollectionRequest {
     private String desc;
     private String theme;
     private String data;
-    private Boolean delete;
+    private Boolean deleteImage;
 
 }
